@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mshel Homes — IT Helpdesk</title>
+  <style>
+    :root {
+      --brand:       #1B3A5C;
+      --brand-light: #2A5485;
+      --accent:      #C8922A;
+      --accent-soft: #F5ECD7;
+      --bg:          #F7F8FA;
+      --surface:     #FFFFFF;
+      --border:      #DDE3EC;
+      --text:        #1A1F2E;
+      --muted:       #6B7A99;
+      --success:     #1E7D47;
+      --success-bg:  #E8F5EE;
+      --warn:        #B45309;
+      --warn-bg:     #FEF3C7;
+      --danger:      #C0392B;
+      --danger-bg:   #FDECEA;
+      --radius:      10px;
+      --shadow:      0 2px 12px rgba(27,58,92,0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* HEADER */
+    header {
+      background: var(--brand);
+      color: white;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 36px; height: 36px; background: var(--accent);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .logo-text { font-size: 17px; font-weight: 700; letter-spacing: 0.3px; }
+    .logo-sub { font-size: 11px; opacity: 0.65; letter-spacing: 1.2px; text-transform: uppercase; }
+    .header-right { font-size: 13px; opacity: 0.7; }
+
+    /* LAYOUT */
+    .container { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+
+    /* STATS ROW */
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+    .stat-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 18px 20px; box-shadow: var(--shadow);
+      border-left: 4px solid var(--border);
+    }
+    .stat-card.open  { border-color: var(--accent); }
+    .stat-card.progress { border-color: #2980B9; }
+    .stat-card.resolved { border-color: var(--success); }
+    .stat-card.assets { border-color: var(--brand); }
+    .stat-num { font-size: 30px; font-weight: 800; color: var(--brand); }
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.8px; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--surface);
+      padding: 5px; border-radius: var(--radius); box-shadow: var(--shadow); width: fit-content; }
+    .tab {
+      padding: 8px 20px; border-radius: 7px; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: none; background: transparent; color: var(--muted); transition: all 0.18s;
+    }
+    .tab.active { background: var(--brand); color: white; }
+
+    /* PANELS */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* FORM CARD */
+    .card {
+      background: var(--surface); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 24px; margin-bottom: 20px;
+    }
+    .card-title { font-size: 15px; font-weight: 700; color: var(--brand); margin-bottom: 18px;
+      display: flex; align-items: center; gap: 8px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+    input, select, textarea {
+      padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 7px;
+      font-size: 14px; color: var(--text); background: var(--bg); outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--brand); background: white; }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .btn {
+      padding: 10px 22px; border-radius: 7px; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: none; transition: all 0.15s;
+    }
+    .btn-primary { background: var(--brand); color: white; }
+    .btn-primary:hover { background: var(--brand-light); }
+    .btn-accent { background: var(--accent); color: white; }
+    .btn-accent:hover { opacity: 0.88; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 5px; }
+    .btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
+    .btn-ghost:hover { border-color: var(--brand); color: var(--brand); }
+
+    /* TICKET LIST */
+    .ticket-filters { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+    .filter-select { padding: 7px 12px; border-radius: 7px; border: 1.5px solid var(--border);
+      font-size: 13px; background: var(--surface); color: var(--text); }
+
+    .ticket-list { display: flex; flex-direction: column; gap: 10px; }
+    .ticket {
+      background: var(--surface); border-radius: var(--radius); padding: 16px 20px;
+      box-shadow: var(--shadow); border-left: 4px solid var(--border);
+      display: flex; align-items: center; gap: 16px; cursor: pointer; transition: box-shadow 0.15s;
+    }
+    .ticket:hover { box-shadow: 0 4px 18px rgba(27,58,92,0.13); }
+    .ticket.open { border-color: var(--accent); }
+    .ticket.in-progress { border-color: #2980B9; }
+    .ticket.resolved { border-color: var(--success); }
+    .ticket.closed { border-color: var(--muted); opacity: 0.7; }
+
+    .ticket-id { font-size: 11px; color: var(--muted); font-weight: 700; min-width: 60px; }
+    .ticket-info { flex: 1; }
+    .ticket-title { font-size: 14px; font-weight: 600; }
+    .ticket-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .ticket-right { display: flex; align-items: center; gap: 10px; }
+
+    .badge {
+      padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .badge-open     { background: var(--warn-bg);    color: var(--warn); }
+    .badge-progress { background: #EBF5FB;            color: #2980B9; }
+    .badge-resolved { background: var(--success-bg); color: var(--success); }
+    .badge-closed   { background: var(--bg);         color: var(--muted); }
+
+    .priority { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+    .p-high   { background: var(--danger-bg); color: var(--danger); }
+    .p-medium { background: var(--warn-bg);   color: var(--warn); }
+    .p-low    { background: var(--success-bg);color: var(--success); }
+
+    /* ASSET TABLE */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: var(--brand); color: white; padding: 10px 14px; text-align: left; font-size: 12px;
+      text-transform: uppercase; letter-spacing: 0.6px; }
+    th:first-child { border-radius: 8px 0 0 0; }
+    th:last-child  { border-radius: 0 8px 0 0; }
+    td { padding: 11px 14px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--accent-soft); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .dot-good    { background: var(--success); }
+    .dot-repair  { background: var(--warn); }
+    .dot-retired { background: var(--muted); }
+
+    /* EMPTY STATE */
+    .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty p { font-size: 14px; }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+      padding: 20px;
+    }
+    .modal {
+      background: white; border-radius: 12px; padding: 28px; width: 100%; max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-title { font-size: 16px; font-weight: 700; color: var(--brand); }
+    .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); }
+    .modal-field { margin-bottom: 14px; }
+    .modal-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.6px; margin-bottom: 4px; }
+    .modal-value { font-size: 14px; color: var(--text); }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; background: var(--brand); color: white;
+      padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 200;
+      transform: translateY(80px); opacity: 0; transition: all 0.3s;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 600px) {
+      .stats { grid-template-columns: repeat(2,1fr); }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🏠</div>
+    <div>
+      <div class="logo-text">Mshel Homes</div>
+      <div class="logo-sub">IT Helpdesk System</div>
+    </div>
+  </div>
+  <div class="header-right" id="clock"></div>
+</header>
+
+<div class="container">
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card open">
+      <div class="stat-num" id="s-open">0</div>
+      <div class="stat-label">Open Tickets</div>
+    </div>
+    <div class="stat-card progress">
+      <div class="stat-num" id="s-progress">0</div>
+      <div class="stat-label">In Progress</div>
+    </div>
+    <div class="stat-card resolved">
+      <div class="stat-num" id="s-resolved">0</div>
+      <div class="stat-label">Resolved</div>
+    </div>
+    <div class="stat-card assets">
+      <div class="stat-num" id="s-assets">0</div>
+      <div class="stat-label">IT Assets</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('tickets')">🎫 Tickets</button>
+    <button class="tab" onclick="switchTab('new')">➕ New Ticket</button>
+    <button class="tab" onclick="switchTab('assets')">🖥️ Asset Inventory</button>
+    <button class="tab" onclick="switchTab('add-asset')">📦 Add Asset</button>
+  </div>
+
+  <!-- TICKETS PANEL -->
+  <div class="panel active" id="panel-tickets">
+    <div class="ticket-filters">
+      <select class="filter-select" id="filter-status" onchange="renderTickets()">
+        <option value="">All Status</option>
+        <option value="open">Open</option>
+        <option value="in-progress">In Progress</option>
+        <option value="resolved">Resolved</option>
+        <option value="closed">Closed</option>
+      </select>
+      <select class="filter-select" id="filter-priority" onchange="renderTickets()">
+        <option value="">All Priority</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <select class="filter-select" id="filter-category" onchange="renderTickets()">
+        <option value="">All Categories</option>
+        <option value="Hardware">Hardware</option>
+        <option value="Software">Software</option>
+        <option value="Network">Network</option>
+        <option value="Email/Microsoft 365">Email / M365</option>
+        <option value="Security">Security</option>
+        <option value="CCTV/Biometric">CCTV / Biometric</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="ticket-list" id="ticket-list"></div>
+  </div>
+
+  <!-- NEW TICKET PANEL -->
+  <div class="panel" id="panel-new">
+    <div class="card">
+      <div class="card-title">🎫 Log a New IT Issue</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Staff Name</label>
+          <input type="text" id="f-name" placeholder="e.g. Amina Bello"/>
+        </div>
+        <div class="form-group">
+          <label>Department</label>
+          <select id="f-dept">
+            <option value="">Select department</option>
+            <option>Sales</option>
+            <option>Finance</option>
+            <option>HR</option>
+            <option>Operations</option>
+            <option>Management</option>
+            <option>IT</option>
+            <option>Legal</option>
+            <option>Marketing</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Issue Category</label>
+          <select id="f-category">
+            <option value="">Select category</option>
+            <option>Hardware</option>
+            <option>Software</option>
+            <option>Network</option>
+            <option>Email/Microsoft 365</option>
+            <option>Security</option>
+            <option>CCTV/Biometric</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="f-priority">
+            <option value="Low">Low — minor issue</option>
+            <option value="Medium" selected>Medium — affects work</option>
+            <option value="High">High — urgent / blocking</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Issue Title</label>
+          <input type="text" id="f-title" placeholder="Brief description of the issue"/>
+        </div>
+        <div class="form-group full">
+          <label>Full Description</label>
+          <textarea id="f-desc" placeholder="Describe the issue in detail — when it started, error messages seen, steps already tried..."></textarea>
+        </div>
+      </div>
+      <div style="margin-top:16px; display:flex; gap:10px;">
+        <button class="btn btn-primary" onclick="submitTicket()">Submit Ticket</button>
+        <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSETS PANEL -->
+  <div class="panel" id="panel-assets">
+    <div class="card">
+      <div class="card-title">🖥️ IT Asset Inventory</div>
+      <div style="overflow-x:auto;">
+        <table id="asset-table">
+          <thead>
+            <tr>
+              <th>Asset Tag</th>
+              <th>Type</th>
+              <th>Brand / Model</th>
+              <th>Assigned To</th>
+              <th>Department</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="asset-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD ASSET PANEL -->
+  <div class="panel" id="panel-add-asset">
+    <div class="card">
+      <div class="card-title">📦 Register New IT Asset</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Asset Type</label>
+          <select id="a-type">
+            <option value="">Select type</option>
+            <option>Laptop</option>
+            <option>Desktop</option>
+            <option>Monitor</option>
+            <option>Printer</option>
+            <option>Router/Switch</option>
+            <option>UPS</option>
+            <option>CCTV Camera</option>
+            <option>Biometric Device</option>
+            <option>Mobile Phone</option>
+            <option>External Drive</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Brand / Model</label>
+          <input type="text" id="a-model" placeholder="e.g. Dell Latitude 5420"/>
+        </div>
+        <div class="form-group">
+          <label>Serial Number</label>
+          <input type="text" id="a-serial" placeholder="e.g. SN-2024-00123"/>
+        </div>
+        <div class="form-group">
+          <label>Assigned To</label>
+          <input type="text" id="a-user" placeholder="Staff name or 'Unassigned'"/>
+        </div>
+        <div class="form-group">
+          <label>Department</label>
+          <select id="a-dept">
+            <option value="">Select department</option>
+            <option>Sales</option>
+            <option>Finance</option>
+            <option>HR</option>
+            <option>Operations</option>
+            <option>Management</option>
+            <option>IT</option>
+            <option>Legal</option>
+            <option>Marketing</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Condition</label>
+          <select id="a-status">
+            <option value="Good">Good</option>
+            <option value="Needs Repair">Needs Repair</option>
+            <option value="Retired">Retired</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <button class="btn btn-primary" onclick="addAsset()">Register Asset</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TICKET MODAL -->
+<div class="modal-overlay" id="modal" style="display:none;" onclick="closeModal(event)">
+  <div class="modal" id="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="m-title"></div>
+      <button class="modal-close" onclick="document.getElementById('modal').style.display='none'">✕</button>
+    </div>
+    <div id="m-body"></div>
+    <div class="modal-actions" id="m-actions"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── DATA ──────────────────────────────────────────────────────────────────
+  let tickets = JSON.parse(localStorage.getItem('mshel_tickets') || '[]');
+  let assets  = JSON.parse(localStorage.getItem('mshel_assets')  || '[]');
+  let ticketCounter = parseInt(localStorage.getItem('mshel_tc') || '1000');
+
+  // Seed demo data if empty
+  if (tickets.length === 0) {
+    tickets = [
+      { id:'TKT-1001', name:'Aisha Musa', dept:'Sales', category:'Network', priority:'High',
+        title:'Cannot connect to company WiFi', desc:'My laptop stopped connecting to the office WiFi since this morning. I tried forgetting the network and reconnecting but it still fails.', status:'open', date: new Date().toLocaleDateString() },
+      { id:'TKT-1002', name:'Emeka Obi', dept:'Finance', category:'Email/Microsoft 365', priority:'Medium',
+        title:'Outlook not syncing emails', desc:'Outlook shows "Disconnected" since yesterday afternoon. I can access webmail fine.', status:'in-progress', date: new Date().toLocaleDateString() },
+      { id:'TKT-1003', name:'Ngozi Adamu', dept:'HR', category:'Hardware', priority:'Low',
+        title:'Printer not responding', desc:'The HP printer on the 2nd floor shows offline even though it is switched on.', status:'resolved', date: new Date().toLocaleDateString() },
+    ];
+    saveData();
+  }
+  if (assets.length === 0) {
+    assets = [
+      { tag:'MH-LT-001', type:'Laptop', model:'Dell Latitude 5420', serial:'SN-2022-0011', user:'Aisha Musa', dept:'Sales', status:'Good' },
+      { tag:'MH-LT-002', type:'Laptop', model:'HP EliteBook 840',   serial:'SN-2022-0012', user:'Emeka Obi',  dept:'Finance', status:'Good' },
+      { tag:'MH-PR-001', type:'Printer', model:'HP LaserJet Pro M404', serial:'SN-2021-0045', user:'Shared', dept:'HR', status:'Needs Repair' },
+      { tag:'MH-RT-001', type:'Router/Switch', model:'Mikrotik RB960PGS', serial:'SN-2020-0003', user:'IT Room', dept:'IT', status:'Good' },
+    ];
+    saveData();
+  }
+
+  function saveData() {
+    localStorage.setItem('mshel_tickets', JSON.stringify(tickets));
+    localStorage.setItem('mshel_assets',  JSON.stringify(assets));
+    localStorage.setItem('mshel_tc', ticketCounter);
+  }
+
+  // ── CLOCK ─────────────────────────────────────────────────────────────────
+  function updateClock() {
+    document.getElementById('clock').textContent = new Date().toLocaleString('en-NG', {
+      weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'
+    });
+  }
+  setInterval(updateClock, 1000); updateClock();
+
+  // ── TABS ──────────────────────────────────────────────────────────────────
+  function switchTab(name) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    event.target.classList.add('active');
+    if (name === 'tickets') renderTickets();
+    if (name === 'assets')  renderAssets();
+    updateStats();
+  }
+
+  // ── STATS ─────────────────────────────────────────────────────────────────
+  function updateStats() {
+    document.getElementById('s-open').textContent     = tickets.filter(t => t.status === 'open').length;
+    document.getElementById('s-progress').textContent = tickets.filter(t => t.status === 'in-progress').length;
+    document.getElementById('s-resolved').textContent = tickets.filter(t => t.status === 'resolved').length;
+    document.getElementById('s-assets').textContent   = assets.length;
+  }
+
+  // ── TICKETS ───────────────────────────────────────────────────────────────
+  function renderTickets() {
+    const fStatus   = document.getElementById('filter-status').value;
+    const fPriority = document.getElementById('filter-priority').value;
+    const fCat      = document.getElementById('filter-category').value;
+    const list      = document.getElementById('ticket-list');
+
+    let filtered = tickets.filter(t =>
+      (!fStatus   || t.status   === fStatus)   &&
+      (!fPriority || t.priority === fPriority) &&
+      (!fCat      || t.category === fCat)
+    );
+
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><p>No tickets found.</p></div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.reverse().map(t => `
+      <div class="ticket ${t.status}" onclick="openTicket('${t.id}')">
+        <div class="ticket-id">${t.id}</div>
+        <div class="ticket-info">
+          <div class="ticket-title">${t.title}</div>
+          <div class="ticket-meta">${t.name} · ${t.dept} · ${t.category} · ${t.date}</div>
+        </div>
+        <div class="ticket-right">
+          <span class="priority p-${t.priority.toLowerCase()}">${t.priority}</span>
+          <span class="badge badge-${t.status === 'in-progress' ? 'progress' : t.status}">${t.status.replace('-',' ')}</span>
+        </div>
+      </div>
+    `).join('');
+    updateStats();
+  }
+
+  function openTicket(id) {
+    const t = tickets.find(x => x.id === id);
+    if (!t) return;
+    document.getElementById('m-title').textContent = `${t.id} — ${t.title}`;
+    document.getElementById('m-body').innerHTML = `
+      <div class="modal-field"><div class="modal-label">Reported By</div><div class="modal-value">${t.name} (${t.dept})</div></div>
+      <div class="modal-field"><div class="modal-label">Category</div><div class="modal-value">${t.category}</div></div>
+      <div class="modal-field"><div class="modal-label">Priority</div><div class="modal-value">${t.priority}</div></div>
+      <div class="modal-field"><div class="modal-label">Date</div><div class="modal-value">${t.date}</div></div>
+      <div class="modal-field"><div class="modal-label">Description</div><div class="modal-value">${t.desc}</div></div>
+      <div class="modal-field"><div class="modal-label">Current Status</div>
+        <select id="modal-status" style="padding:7px 12px;border:1.5px solid #DDE3EC;border-radius:7px;font-size:14px;margin-top:4px;">
+          <option value="open"        ${t.status==='open'?'selected':''}>Open</option>
+          <option value="in-progress" ${t.status==='in-progress'?'selected':''}>In Progress</option>
+          <option value="resolved"    ${t.status==='resolved'?'selected':''}>Resolved</option>
+          <option value="closed"      ${t.status==='closed'?'selected':''}>Closed</option>
+        </select>
+      </div>
+    `;
+    document.getElementById('m-actions').innerHTML = `
+      <button class="btn btn-primary" onclick="updateStatus('${id}')">Update Status</button>
+      <button class="btn btn-ghost btn-sm" style="color:#C0392B;border-color:#C0392B;" onclick="deleteTicket('${id}')">Delete</button>
+    `;
+    document.getElementById('modal').style.display = 'flex';
+  }
+
+  function updateStatus(id) {
+    const newStatus = document.getElementById('modal-status').value;
+    const t = tickets.find(x => x.id === id);
+    if (t) { t.status = newStatus; saveData(); renderTickets(); }
+    document.getElementById('modal').style.display = 'none';
+    showToast('Ticket status updated ✓');
+  }
+
+  function deleteTicket(id) {
+    if (!confirm('Delete this ticket?')) return;
+    tickets = tickets.filter(x => x.id !== id);
+    saveData(); renderTickets();
+    document.getElementById('modal').style.display = 'none';
+    showToast('Ticket deleted');
+  }
+
+  function closeModal(e) {
+    if (e.target.id === 'modal') document.getElementById('modal').style.display = 'none';
+  }
+
+  function submitTicket() {
+    const name     = document.getElementById('f-name').value.trim();
+    const dept     = document.getElementById('f-dept').value;
+    const category = document.getElementById('f-category').value;
+    const priority = document.getElementById('f-priority').value;
+    const title    = document.getElementById('f-title').value.trim();
+    const desc     = document.getElementById('f-desc').value.trim();
+
+    if (!name || !dept || !category || !title || !desc) {
+      showToast('⚠️ Please fill in all fields', true); return;
+    }
+
+    ticketCounter++;
+    tickets.push({ id:`TKT-${ticketCounter}`, name, dept, category, priority, title, desc,
+      status:'open', date: new Date().toLocaleDateString() });
+    saveData(); clearForm(); updateStats();
+    showToast(`Ticket TKT-${ticketCounter} created ✓`);
+    switchTabDirect('tickets');
+  }
+
+  function clearForm() {
+    ['f-name','f-dept','f-category','f-priority','f-title','f-desc'].forEach(id => {
+      const el = document.getElementById(id);
+      el.value = el.tagName === 'SELECT' ? '' : '';
+    });
+  }
+
+  // ── ASSETS ────────────────────────────────────────────────────────────────
+  function renderAssets() {
+    const tbody = document.getElementById('asset-body');
+    if (assets.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:#6B7A99;">No assets registered yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = assets.map((a, i) => `
+      <tr>
+        <td><strong>${a.tag}</strong></td>
+        <td>${a.type}</td>
+        <td>${a.model}</td>
+        <td>${a.user}</td>
+        <td>${a.dept}</td>
+        <td>
+          <span class="status-dot dot-${a.status === 'Good' ? 'good' : a.status === 'Needs Repair' ? 'repair' : 'retired'}"></span>
+          ${a.status}
+        </td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick="deleteAsset(${i})">Remove</button>
+        </td>
+      </tr>
+    `).join('');
+    updateStats();
+  }
+
+  function addAsset() {
+    const type   = document.getElementById('a-type').value;
+    const model  = document.getElementById('a-model').value.trim();
+    const serial = document.getElementById('a-serial').value.trim();
+    const user   = document.getElementById('a-user').value.trim();
+    const dept   = document.getElementById('a-dept').value;
+    const status = document.getElementById('a-status').value;
+
+    if (!type || !model || !serial || !user || !dept) {
+      showToast('⚠️ Please fill in all fields', true); return;
+    }
+
+    const prefix = type.substring(0,2).toUpperCase();
+    const tag = `MH-${prefix}-${String(assets.length + 1).padStart(3,'0')}`;
+    assets.push({ tag, type, model, serial, user, dept, status });
+    saveData(); updateStats();
+    showToast(`Asset ${tag} registered ✓`);
+    ['a-type','a-model','a-serial','a-user','a-dept','a-status'].forEach(id => {
+      const el = document.getElementById(id); el.value = '';
+    });
+    switchTabDirect('assets');
+  }
+
+  function deleteAsset(i) {
+    if (!confirm('Remove this asset?')) return;
+    assets.splice(i, 1); saveData(); renderAssets(); showToast('Asset removed');
+  }
+
+  // ── HELPERS ───────────────────────────────────────────────────────────────
+  function switchTabDirect(name) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    document.querySelectorAll('.tab')[name === 'tickets' ? 0 : name === 'new' ? 1 : name === 'assets' ? 2 : 3].classList.add('active');
+    if (name === 'tickets') renderTickets();
+    if (name === 'assets')  renderAssets();
+  }
+
+  function showToast(msg, warn = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = warn ? '#B45309' : 'var(--brand)';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── INIT ──────────────────────────────────────────────────────────────────
+  renderTickets(); updateStats();
+</script>
+</body>
+</html>
