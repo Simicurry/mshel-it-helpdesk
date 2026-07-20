@@ -534,15 +534,46 @@
   function openTicket(id) {
     const t = tickets.find(x => x.id === id);
     if (!t) return;
-    document.getElementById('m-title').textContent = `${t.id} — ${t.title}`;
+    const iStyle = `padding:8px 12px;border:1.5px solid #DDE3EC;border-radius:7px;font-size:14px;width:100%;margin-top:4px;background:#F7F8FA;color:#1A1F2E;outline:none;`;
+    document.getElementById('m-title').textContent = `${t.id} — Edit Ticket`;
     document.getElementById('m-body').innerHTML = `
-      <div class="modal-field"><div class="modal-label">Reported By</div><div class="modal-value">${t.name} (${t.dept})</div></div>
-      <div class="modal-field"><div class="modal-label">Category</div><div class="modal-value">${t.category}</div></div>
-      <div class="modal-field"><div class="modal-label">Priority</div><div class="modal-value">${t.priority}</div></div>
-      <div class="modal-field"><div class="modal-label">Date</div><div class="modal-value">${t.date}</div></div>
-      <div class="modal-field"><div class="modal-label">Description</div><div class="modal-value">${t.desc}</div></div>
-      <div class="modal-field"><div class="modal-label">Current Status</div>
-        <select id="modal-status" style="padding:7px 12px;border:1.5px solid #DDE3EC;border-radius:7px;font-size:14px;margin-top:4px;">
+      <div class="modal-field">
+        <div class="modal-label">Issue Title</div>
+        <input id="m-edit-title" style="${iStyle}" value="${t.title}"/>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Reported By</div>
+        <input id="m-edit-name" style="${iStyle}" value="${t.name}"/>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Department</div>
+        <select id="m-edit-dept" style="${iStyle}">
+          ${['Sales','Finance','HR','Operations','Management','IT','Legal','Marketing'].map(d =>
+            `<option ${t.dept===d?'selected':''}>${d}</option>`).join('')}
+        </select>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Category</div>
+        <select id="m-edit-category" style="${iStyle}">
+          ${['Hardware','Software','Network','Email/Microsoft 365','Security','CCTV/Biometric','Other'].map(c =>
+            `<option ${t.category===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Priority</div>
+        <select id="m-edit-priority" style="${iStyle}">
+          <option ${t.priority==='Low'?'selected':''}>Low</option>
+          <option ${t.priority==='Medium'?'selected':''}>Medium</option>
+          <option ${t.priority==='High'?'selected':''}>High</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Description</div>
+        <textarea id="m-edit-desc" style="${iStyle} resize:vertical;min-height:80px;">${t.desc}</textarea>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Status</div>
+        <select id="m-edit-status" style="${iStyle}">
           <option value="open"        ${t.status==='open'?'selected':''}>Open</option>
           <option value="in-progress" ${t.status==='in-progress'?'selected':''}>In Progress</option>
           <option value="resolved"    ${t.status==='resolved'?'selected':''}>Resolved</option>
@@ -551,18 +582,25 @@
       </div>
     `;
     document.getElementById('m-actions').innerHTML = `
-      <button class="btn btn-primary" onclick="updateStatus('${id}')">Update Status</button>
+      <button class="btn btn-primary" onclick="saveTicketEdits('${id}')">💾 Save Changes</button>
       <button class="btn btn-ghost btn-sm" style="color:#C0392B;border-color:#C0392B;" onclick="deleteTicket('${id}')">Delete</button>
     `;
     document.getElementById('modal').style.display = 'flex';
   }
 
-  function updateStatus(id) {
-    const newStatus = document.getElementById('modal-status').value;
+  function saveTicketEdits(id) {
     const t = tickets.find(x => x.id === id);
-    if (t) { t.status = newStatus; saveData(); renderTickets(); }
+    if (!t) return;
+    t.title    = document.getElementById('m-edit-title').value.trim()    || t.title;
+    t.name     = document.getElementById('m-edit-name').value.trim()     || t.name;
+    t.dept     = document.getElementById('m-edit-dept').value;
+    t.category = document.getElementById('m-edit-category').value;
+    t.priority = document.getElementById('m-edit-priority').value;
+    t.desc     = document.getElementById('m-edit-desc').value.trim()     || t.desc;
+    t.status   = document.getElementById('m-edit-status').value;
+    saveData(); renderTickets();
     document.getElementById('modal').style.display = 'none';
-    showToast('Ticket status updated ✓');
+    showToast('Ticket updated ✓');
   }
 
   function deleteTicket(id) {
