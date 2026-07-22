@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GEMS Communications — IT Management System</title>
+  <style>
+    :root {
+      --brand:       #0A2540;
+      --brand-light: #1A3F6F;
+      --accent:      #E63946;
+      --accent-soft: #FDECEA;
+      --bg:          #F4F6FA;
+      --surface:     #FFFFFF;
+      --border:      #DDE3EC;
+      --text:        #1A1F2E;
+      --muted:       #6B7A99;
+      --success:     #1E7D47;
+      --success-bg:  #E8F5EE;
+      --warn:        #B45309;
+      --warn-bg:     #FEF3C7;
+      --danger:      #C0392B;
+      --danger-bg:   #FDECEA;
+      --radius:      10px;
+      --shadow:      0 2px 12px rgba(10,37,64,0.09);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    header {
+      background: var(--brand); color: white;
+      padding: 0 32px; display: flex; align-items: center;
+      justify-content: space-between; height: 64px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.22);
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon { width: 38px; height: 38px; background: var(--accent); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .logo-text { font-size: 17px; font-weight: 800; letter-spacing: 0.5px; }
+    .logo-sub  { font-size: 11px; opacity: 0.6; letter-spacing: 1.4px; text-transform: uppercase; }
+    .header-right { font-size: 13px; opacity: 0.65; }
+
+    .container { max-width: 1140px; margin: 0 auto; padding: 26px 20px; }
+
+    /* STATS */
+    .stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: var(--surface); border-radius: var(--radius);
+      padding: 16px 18px; box-shadow: var(--shadow); border-left: 4px solid var(--border); }
+    .stat-card.s1 { border-color: var(--accent); }
+    .stat-card.s2 { border-color: #2980B9; }
+    .stat-card.s3 { border-color: var(--success); }
+    .stat-card.s4 { border-color: var(--brand); }
+    .stat-card.s5 { border-color: #8E44AD; }
+    .stat-num   { font-size: 28px; font-weight: 800; color: var(--brand); }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.8px; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 3px; margin-bottom: 20px; background: var(--surface);
+      padding: 5px; border-radius: var(--radius); box-shadow: var(--shadow);
+      flex-wrap: wrap; width: fit-content; }
+    .tab { padding: 7px 16px; border-radius: 7px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; background: transparent; color: var(--muted); transition: all 0.18s; }
+    .tab.active { background: var(--brand); color: white; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .card { background: var(--surface); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 22px; margin-bottom: 18px; }
+    .card-title { font-size: 15px; font-weight: 700; color: var(--brand);
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1/-1; }
+    .form-group.third { grid-column: span 1; }
+    label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+    input, select, textarea {
+      padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 7px;
+      font-size: 14px; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.15s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--brand); background: white; }
+    textarea { resize: vertical; min-height: 76px; }
+
+    .btn { padding: 9px 20px; border-radius: 7px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: var(--brand); color: white; }
+    .btn-primary:hover { background: var(--brand-light); }
+    .btn-accent  { background: var(--accent); color: white; }
+    .btn-sm      { padding: 5px 11px; font-size: 12px; border-radius: 5px; }
+    .btn-ghost   { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
+    .btn-ghost:hover { border-color: var(--brand); color: var(--brand); }
+
+    /* TICKETS */
+    .ticket-filters { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .filter-select { padding: 7px 11px; border-radius: 7px; border: 1.5px solid var(--border);
+      font-size: 13px; background: var(--surface); color: var(--text); }
+    .ticket-list { display: flex; flex-direction: column; gap: 9px; }
+    .ticket { background: var(--surface); border-radius: var(--radius); padding: 15px 18px;
+      box-shadow: var(--shadow); border-left: 4px solid var(--border);
+      display: flex; align-items: center; gap: 14px; cursor: pointer; transition: box-shadow 0.15s; }
+    .ticket:hover { box-shadow: 0 4px 18px rgba(10,37,64,0.13); }
+    .ticket.open        { border-color: var(--accent); }
+    .ticket.in-progress { border-color: #2980B9; }
+    .ticket.resolved    { border-color: var(--success); }
+    .ticket.closed      { border-color: var(--muted); opacity: 0.7; }
+    .ticket-id   { font-size: 11px; color: var(--muted); font-weight: 700; min-width: 65px; }
+    .ticket-info { flex: 1; }
+    .ticket-title { font-size: 14px; font-weight: 600; }
+    .ticket-meta  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .ticket-right { display: flex; align-items: center; gap: 9px; }
+    .badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .badge-open     { background: var(--warn-bg);    color: var(--warn); }
+    .badge-progress { background: #EBF5FB;            color: #2980B9; }
+    .badge-resolved { background: var(--success-bg); color: var(--success); }
+    .badge-closed   { background: var(--bg);         color: var(--muted); }
+    .priority { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+    .p-high   { background: var(--danger-bg); color: var(--danger); }
+    .p-medium { background: var(--warn-bg);   color: var(--warn); }
+    .p-low    { background: var(--success-bg);color: var(--success); }
+
+    /* TABLES */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: var(--brand); color: white; padding: 10px 13px; text-align: left;
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; }
+    th:first-child { border-radius: 8px 0 0 0; }
+    th:last-child  { border-radius: 0 8px 0 0; }
+    td { padding: 11px 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #F0F4FA; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+    .dot-good    { background: var(--success); }
+    .dot-warn    { background: var(--warn); }
+    .dot-bad     { background: var(--danger); }
+    .dot-offline { background: var(--muted); }
+
+    /* BILLBOARD CARDS */
+    .bb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 14px; }
+    .bb-card { background: var(--surface); border-radius: var(--radius); padding: 18px;
+      box-shadow: var(--shadow); border-top: 4px solid var(--border); }
+    .bb-card.online  { border-color: var(--success); }
+    .bb-card.offline { border-color: var(--danger); }
+    .bb-card.warning { border-color: var(--warn); }
+    .bb-name   { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .bb-loc    { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+    .bb-row    { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+    .bb-key    { color: var(--muted); font-weight: 600; }
+    .bb-val    { font-weight: 700; }
+    .bb-status { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px;
+      border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .bs-online  { background: var(--success-bg); color: var(--success); }
+    .bs-offline { background: var(--danger-bg);  color: var(--danger); }
+    .bs-warning { background: var(--warn-bg);    color: var(--warn); }
+
+    /* REPORT */
+    .report-box { background: var(--surface); border-radius: var(--radius); padding: 24px;
+      box-shadow: var(--shadow); font-size: 14px; line-height: 1.7; }
+    .report-box h2 { color: var(--brand); font-size: 18px; margin-bottom: 4px; }
+    .report-box h3 { color: var(--brand); font-size: 14px; margin: 16px 0 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+    .report-box p  { margin-bottom: 6px; }
+    .report-meta   { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+    .report-table  { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+    .report-table th { background: var(--brand); color: white; padding: 8px 12px; text-align: left; font-size: 12px; }
+    .report-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+    .modal { background: white; border-radius: 12px; padding: 26px; width: 100%; max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .modal-title  { font-size: 15px; font-weight: 700; color: var(--brand); }
+    .modal-close  { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); }
+    .modal-field  { margin-bottom: 13px; }
+    .modal-label  { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+    .empty { text-align: center; padding: 44px 20px; color: var(--muted); }
+    .empty-icon { font-size: 38px; margin-bottom: 10px; }
+
+    .toast { position: fixed; bottom: 22px; right: 22px; background: var(--brand); color: white;
+      padding: 11px 18px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 200;
+      transform: translateY(80px); opacity: 0; transition: all 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 700px) {
+      .stats { grid-template-columns: repeat(2,1fr); }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: 1; }
+      .tabs { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">📡</div>
+    <div>
+      <div class="logo-text">GEMS Communications</div>
+      <div class="logo-sub">IT Management System</div>
+    </div>
+  </div>
+  <div class="header-right" id="clock"></div>
+</header>
+
+<div class="container">
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card s1"><div class="stat-num" id="s-open">0</div><div class="stat-label">Open Tickets</div></div>
+    <div class="stat-card s2"><div class="stat-num" id="s-progress">0</div><div class="stat-label">In Progress</div></div>
+    <div class="stat-card s3"><div class="stat-num" id="s-resolved">0</div><div class="stat-label">Resolved</div></div>
+    <div class="stat-card s4"><div class="stat-num" id="s-assets">0</div><div class="stat-label">IT Assets</div></div>
+    <div class="stat-card s5"><div class="stat-num" id="s-boards">0</div><div class="stat-label">Billboards Online</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active"  onclick="switchTab('tickets','tickets')">🎫 Tickets</button>
+    <button class="tab"         onclick="switchTab('new','new')">➕ New Ticket</button>
+    <button class="tab"         onclick="switchTab('assets','assets')">🖥️ Assets</button>
+    <button class="tab"         onclick="switchTab('add-asset','add-asset')">📦 Add Asset</button>
+    <button class="tab"         onclick="switchTab('billboards','billboards')">📺 Billboards</button>
+    <button class="tab"         onclick="switchTab('add-board','add-board')">➕ Add Billboard</button>
+    <button class="tab"         onclick="switchTab('network','network')">🌐 Network</button>
+    <button class="tab"         onclick="switchTab('report','report')">📄 IT Report</button>
+  </div>
+
+  <!-- ── TICKETS ─────────────────────────────────────────────────────────── -->
+  <div class="panel active" id="panel-tickets">
+    <div class="ticket-filters">
+      <select class="filter-select" id="filter-status"   onchange="renderTickets()">
+        <option value="">All Status</option>
+        <option value="open">Open</option>
+        <option value="in-progress">In Progress</option>
+        <option value="resolved">Resolved</option>
+        <option value="closed">Closed</option>
+      </select>
+      <select class="filter-select" id="filter-priority" onchange="renderTickets()">
+        <option value="">All Priority</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <select class="filter-select" id="filter-category" onchange="renderTickets()">
+        <option value="">All Categories</option>
+        <option>Hardware</option><option>Software</option><option>Network</option>
+        <option>Email/Microsoft 365</option><option>Security</option>
+        <option>LED Billboard</option><option>Media Player</option>
+        <option>Internet/ISP</option><option>Cybersecurity</option><option>Other</option>
+      </select>
+    </div>
+    <div class="ticket-list" id="ticket-list"></div>
+  </div>
+
+  <!-- ── NEW TICKET ──────────────────────────────────────────────────────── -->
+  <div class="panel" id="panel-new">
+    <div class="card">
+      <div class="card-title">🎫 Log a New IT Issue</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Staff Name</label><input type="text" id="f-name" placeholder="e.g. Fatima Umar"/></div>
+        <div class="form-group"><label>Department</label>
+          <select id="f-dept">
+            <option value="">Select department</option>
+            <option>Sales & Marketing</option><option>Finance</option><option>HR</option>
+            <option>Operations</option><option>Management</option><option>IT</option>
+            <option>Content & Creative</option><option>Field Operations</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Issue Category</label>
+          <select id="f-category">
+            <option value="">Select category</option>
+            <option>Hardware</option><option>Software</option><option>Network</option>
+            <option>Email/Microsoft 365</option><option>Security</option>
+            <option>LED Billboard</option><option>Media Player</option>
+            <option>Internet/ISP</option><option>Cybersecurity</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Priority</label>
+          <select id="f-priority">
+            <option value="Low">Low — minor issue</option>
+            <option value="Medium" selected>Medium — affects work</option>
+            <option value="High">High — urgent / blocking</option>
+          </select>
+        </div>
+        <div class="form-group full"><label>Issue Title</label>
+          <input type="text" id="f-title" placeholder="Brief description of the issue"/></div>
+        <div class="form-group full"><label>Full Description</label>
+          <textarea id="f-desc" placeholder="Describe the issue — when it started, error messages, steps already tried..."></textarea></div>
+      </div>
+      <div style="margin-top:15px;display:flex;gap:10px;">
+        <button class="btn btn-primary" onclick="submitTicket()">Submit Ticket</button>
+        <button class="btn btn-ghost"   onclick="clearForm()">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ASSETS ──────────────────────────────────────────────────────────── -->
+  <div class="panel" id="panel-assets">
+    <div class="card">
+      <div class="card-title">🖥️ IT Asset Inventory</div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th>Asset Tag</th><th>Type</th><th>Brand / Model</th>
+            <th>Assigned To</th><th>Department</th><th>Status</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="asset-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ADD ASSET ───────────────────────────────────────────────────────── -->
+  <div class="panel" id="panel-add-asset">
+    <div class="card">
+      <div class="card-title">📦 Register New IT Asset</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Asset Type</label>
+          <select id="a-type">
+            <option value="">Select type</option>
+            <option>Laptop</option><option>Desktop</option><option>Monitor</option>
+            <option>Printer</option><option>Router</option><option>Switch</option>
+            <option>Firewall</option><option>UPS</option><option>Media Player</option>
+            <option>LED Controller</option><option>IP Camera</option>
+            <option>Biometric Device</option><option>Mobile Phone</option>
+            <option>External Drive</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Brand / Model</label><input type="text" id="a-model" placeholder="e.g. Dell Latitude 5420"/></div>
+        <div class="form-group"><label>Serial Number</label><input type="text" id="a-serial" placeholder="e.g. SN-2024-00123"/></div>
+        <div class="form-group"><label>Assigned To</label><input type="text" id="a-user" placeholder="Staff name or 'Unassigned'"/></div>
+        <div class="form-group"><label>Department</label>
+          <select id="a-dept">
+            <option value="">Select department</option>
+            <option>Sales & Marketing</option><option>Finance</option><option>HR</option>
+            <option>Operations</option><option>Management</option><option>IT</option>
+            <option>Content & Creative</option><option>Field Operations</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Condition</label>
+          <select id="a-status">
+            <option value="Good">Good</option>
+            <option value="Needs Repair">Needs Repair</option>
+            <option value="Retired">Retired</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:15px;">
+        <button class="btn btn-primary" onclick="addAsset()">Register Asset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BILLBOARDS ──────────────────────────────────────────────────────── -->
+  <div class="panel" id="panel-billboards">
+    <div class="card" style="padding:16px 22px 10px;">
+      <div class="card-title" style="margin-bottom:8px;">📺 LED Billboard Monitor</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:0;">Live status of all digital billboard sites. Click a card to update.</p>
+    </div>
+    <div class="bb-grid" id="bb-grid"></div>
+  </div>
+
+  <!-- ── ADD BILLBOARD ───────────────────────────────────────────────────── -->
+  <div class="panel" id="panel-add-board">
+    <div class="card">
+      <div class="card-title">📺 Register New Billboard Site</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Billboard Name / ID</label><input type="text" id="bb-name" placeholder="e.g. Wuse Junction LED-01"/></div>
+        <div class="form-group"><label>Location</label><input type="text" id="bb-loc" placeholder="e.g. Wuse Zone 5, Abuja"/></div>
+        <div class="form-group"><label>Screen Size</label><input type="text" id="bb-size" placeholder="e.g. 6m x 3m"/></div>
+        <div class="form-group"><label>Media Player Model</label><input type="text" id="bb-player" placeholder="e.g. Linsn LED Player"/></div>
+        <div class="form-group"><label>Connectivity</label>
+          <select id="bb-conn">
+            <option>4G LTE</option><option>Fibre</option><option>VSAT</option><option>None (Manual)</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Status</label>
+          <select id="bb-status">
+            <option value="online">Online</option>
+            <option value="warning">Warning</option>
+            <option value="offline">Offline</option>
+          </select>
+        </div>
+        <div class="form-group full"><label>Notes</label>
+          <textarea id="bb-notes" placeholder="Any additional info about this site..."></textarea></div>
+      </div>
+      <div style="margin-top:15px;">
+        <button class="btn btn-primary" onclick="addBillboard()">Register Billboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NETWORK ─────────────────────────────────────────────────────────── -->
+  <div class="panel" id="panel-network">
+    <div class="card">
+      <div class="card-title">🌐 Network Infrastructure</div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th>Device</th><th>Type</th><th>IP Address</th><th>Location</th><th>Status</th><th>Last Checked</th><th>Action</th>
+          </tr></thead>
+          <tbody id="net-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">➕ Add Network Device</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Device Name</label><input type="text" id="n-name" placeholder="e.g. Core Switch - Floor 2"/></div>
+        <div class="form-group"><label>Type</label>
+          <select id="n-type">
+            <option>Router</option><option>Switch</option><option>Firewall</option>
+            <option>Access Point</option><option>Modem</option><option>Server</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>IP Address</label><input type="text" id="n-ip" placeholder="e.g. 192.168.1.1"/></div>
+        <div class="form-group"><label>Location</label><input type="text" id="n-loc" placeholder="e.g. Server Room, HQ"/></div>
+        <div class="form-group"><label>Status</label>
+          <select id="n-status">
+            <option value="Active">Active</option>
+            <option value="Degraded">Degraded</option>
+            <option value="Down">Down</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:14px;">
+        <button class="btn btn-primary" onclick="addNetDevice()">Add Device</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── IT REPORT ───────────────────────────────────────────────────────── -->
+  <div class="panel" id="panel-report">
+    <div class="card">
+      <div class="card-title">📄 Generate IT Report</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Report Period</label>
+          <select id="r-period">
+            <option>Weekly</option><option>Monthly</option><option>Quarterly</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Prepared By</label>
+          <input type="text" id="r-author" placeholder="e.g. Simeon (IT Support Officer)"/>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:10px;">
+        <button class="btn btn-primary" onclick="generateReport()">📊 Generate Report</button>
+        <button class="btn btn-ghost"   onclick="printReport()">🖨️ Print / Save PDF</button>
+      </div>
+    </div>
+    <div id="report-output"></div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" style="display:none;" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="m-title"></div>
+      <button class="modal-close" onclick="document.getElementById('modal').style.display='none'">✕</button>
+    </div>
+    <div id="m-body"></div>
+    <div class="modal-actions" id="m-actions"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ───────────────────────────────────────────────────────────────────
+let tickets  = JSON.parse(localStorage.getItem('gems_tickets')  || '[]');
+let assets   = JSON.parse(localStorage.getItem('gems_assets')   || '[]');
+let boards   = JSON.parse(localStorage.getItem('gems_boards')   || '[]');
+let netDevs  = JSON.parse(localStorage.getItem('gems_net')      || '[]');
+let tkCount  = parseInt(localStorage.getItem('gems_tc')         || '2000');
+
+// ── SEED DATA ─────────────────────────────────────────────────────────────
+if (!tickets.length) {
+  tickets = [
+    { id:'TKT-2001', name:'Emeka Okafor', dept:'Sales & Marketing', category:'LED Billboard',
+      priority:'High', title:'Billboard offline – Maitama Junction', desc:'The Maitama LED screen has been blank since 7am. Remote access not responding.', status:'in-progress', date: new Date().toLocaleDateString() },
+    { id:'TKT-2002', name:'Aisha Bello', dept:'Finance', category:'Email/Microsoft 365',
+      priority:'Medium', title:'Cannot access shared SharePoint drive', desc:'Getting "Access Denied" when trying to open the Finance shared folder on SharePoint.', status:'open', date: new Date().toLocaleDateString() },
+    { id:'TKT-2003', name:'Chidi Eze', dept:'Content & Creative', category:'Media Player',
+      priority:'High', title:'Content not updating on Garki billboard', desc:'Scheduled content change did not reflect on the Garki screen after last night\'s update push.', status:'open', date: new Date().toLocaleDateString() },
+    { id:'TKT-2004', name:'Ngozi Adamu', dept:'HR', category:'Hardware',
+      priority:'Low', title:'Printer paper jam', desc:'HP printer on 3rd floor keeps jamming after every 5 pages.', status:'resolved', date: new Date().toLocaleDateString() },
+  ]; saveData();
+}
+if (!assets.length) {
+  assets = [
+    { tag:'GC-LT-001', type:'Laptop', model:'Dell Latitude 5430', serial:'SN-2023-001', user:'Emeka Okafor', dept:'Sales & Marketing', status:'Good' },
+    { tag:'GC-LT-002', type:'Laptop', model:'HP EliteBook 840 G9', serial:'SN-2023-002', user:'Aisha Bello', dept:'Finance', status:'Good' },
+    { tag:'GC-MP-001', type:'Media Player', model:'Linsn LED Player Pro', serial:'SN-2022-010', user:'Maitama Site', dept:'Field Operations', status:'Needs Repair' },
+    { tag:'GC-FW-001', type:'Firewall', model:'Fortinet FortiGate 60F', serial:'SN-2021-003', user:'IT Room', dept:'IT', status:'Good' },
+    { tag:'GC-SW-001', type:'Switch', model:'Cisco Catalyst 2960-X', serial:'SN-2021-004', user:'Server Room', dept:'IT', status:'Good' },
+  ]; saveData();
+}
+if (!boards.length) {
+  boards = [
+    { id:'BB-001', name:'Maitama Junction LED', loc:'Maitama, Abuja', size:'8m x 4m', player:'Linsn Pro', conn:'4G LTE', status:'offline', notes:'Power unit replaced last week', lastUpdate: new Date().toLocaleDateString() },
+    { id:'BB-002', name:'Garki Area 11 LED', loc:'Garki, Abuja', size:'6m x 3m', player:'Nova Star', conn:'Fibre', status:'online', notes:'Running fine', lastUpdate: new Date().toLocaleDateString() },
+    { id:'BB-003', name:'Wuse Market LED', loc:'Wuse Zone 5, Abuja', size:'10m x 5m', player:'Linsn Pro', conn:'4G LTE', status:'warning', notes:'Signal intermittent — ISP issue', lastUpdate: new Date().toLocaleDateString() },
+  ]; saveData();
+}
+if (!netDevs.length) {
+  netDevs = [
+    { name:'Core Router', type:'Router', ip:'192.168.1.1', loc:'Server Room, HQ', status:'Active', checked: new Date().toLocaleDateString() },
+    { name:'Cisco Switch Floor 1', type:'Switch', ip:'192.168.1.2', loc:'Floor 1 Comms Cabinet', status:'Active', checked: new Date().toLocaleDateString() },
+    { name:'FortiGate Firewall', type:'Firewall', ip:'10.0.0.1', loc:'Server Room, HQ', status:'Active', checked: new Date().toLocaleDateString() },
+    { name:'WiFi AP - 2nd Floor', type:'Access Point', ip:'192.168.1.50', loc:'2nd Floor, HQ', status:'Degraded', checked: new Date().toLocaleDateString() },
+  ]; saveData();
+}
+
+function saveData() {
+  localStorage.setItem('gems_tickets', JSON.stringify(tickets));
+  localStorage.setItem('gems_assets',  JSON.stringify(assets));
+  localStorage.setItem('gems_boards',  JSON.stringify(boards));
+  localStorage.setItem('gems_net',     JSON.stringify(netDevs));
+  localStorage.setItem('gems_tc',      tkCount);
+}
+
+// ── CLOCK ──────────────────────────────────────────────────────────────────
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleString('en-NG',{
+    weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'
+  });
+}
+setInterval(updateClock,1000); updateClock();
+
+// ── TABS ───────────────────────────────────────────────────────────────────
+const tabOrder = ['tickets','new','assets','add-asset','billboards','add-board','network','report'];
+function switchTab(name, src) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.querySelectorAll('.tab')[tabOrder.indexOf(name)].classList.add('active');
+  if (name==='tickets')    renderTickets();
+  if (name==='assets')     renderAssets();
+  if (name==='billboards') renderBoards();
+  if (name==='network')    renderNet();
+  updateStats();
+}
+
+// ── STATS ──────────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('s-open').textContent     = tickets.filter(t=>t.status==='open').length;
+  document.getElementById('s-progress').textContent = tickets.filter(t=>t.status==='in-progress').length;
+  document.getElementById('s-resolved').textContent = tickets.filter(t=>t.status==='resolved').length;
+  document.getElementById('s-assets').textContent   = assets.length;
+  document.getElementById('s-boards').textContent   = boards.filter(b=>b.status==='online').length;
+}
+
+// ── TICKETS ────────────────────────────────────────────────────────────────
+function renderTickets() {
+  const fS = document.getElementById('filter-status').value;
+  const fP = document.getElementById('filter-priority').value;
+  const fC = document.getElementById('filter-category').value;
+  const list = document.getElementById('ticket-list');
+  let f = tickets.filter(t=>(!fS||t.status===fS)&&(!fP||t.priority===fP)&&(!fC||t.category===fC));
+  if (!f.length) { list.innerHTML=`<div class="empty"><div class="empty-icon">📭</div><p>No tickets found.</p></div>`; return; }
+  list.innerHTML = [...f].reverse().map(t=>`
+    <div class="ticket ${t.status}" onclick="openTicket('${t.id}')">
+      <div class="ticket-id">${t.id}</div>
+      <div class="ticket-info">
+        <div class="ticket-title">${t.title}</div>
+        <div class="ticket-meta">${t.name} · ${t.dept} · ${t.category} · ${t.date}</div>
+      </div>
+      <div class="ticket-right">
+        <span class="priority p-${t.priority.toLowerCase()}">${t.priority}</span>
+        <span class="badge badge-${t.status==='in-progress'?'progress':t.status}">${t.status.replace('-',' ')}</span>
+      </div>
+    </div>`).join('');
+  updateStats();
+}
+
+function openTicket(id) {
+  const t = tickets.find(x=>x.id===id); if(!t) return;
+  const iS=`padding:8px 12px;border:1.5px solid #DDE3EC;border-radius:7px;font-size:14px;width:100%;margin-top:4px;background:#F7F8FA;color:#1A1F2E;outline:none;`;
+  const cats=['Hardware','Software','Network','Email/Microsoft 365','Security','LED Billboard','Media Player','Internet/ISP','Cybersecurity','Other'];
+  const depts=['Sales & Marketing','Finance','HR','Operations','Management','IT','Content & Creative','Field Operations'];
+  document.getElementById('m-title').textContent=`${t.id} — Edit Ticket`;
+  document.getElementById('m-body').innerHTML=`
+    <div class="modal-field"><div class="modal-label">Issue Title</div><input id="m-title2" style="${iS}" value="${t.title}"/></div>
+    <div class="modal-field"><div class="modal-label">Reported By</div><input id="m-name" style="${iS}" value="${t.name}"/></div>
+    <div class="modal-field"><div class="modal-label">Department</div>
+      <select id="m-dept" style="${iS}">${depts.map(d=>`<option ${t.dept===d?'selected':''}>${d}</option>`).join('')}</select></div>
+    <div class="modal-field"><div class="modal-label">Category</div>
+      <select id="m-cat" style="${iS}">${cats.map(c=>`<option ${t.category===c?'selected':''}>${c}</option>`).join('')}</select></div>
+    <div class="modal-field"><div class="modal-label">Priority</div>
+      <select id="m-pri" style="${iS}">
+        <option ${t.priority==='Low'?'selected':''}>Low</option>
+        <option ${t.priority==='Medium'?'selected':''}>Medium</option>
+        <option ${t.priority==='High'?'selected':''}>High</option>
+      </select></div>
+    <div class="modal-field"><div class="modal-label">Description</div>
+      <textarea id="m-desc" style="${iS}resize:vertical;min-height:80px;">${t.desc}</textarea></div>
+    <div class="modal-field"><div class="modal-label">Status</div>
+      <select id="m-stat" style="${iS}">
+        <option value="open" ${t.status==='open'?'selected':''}>Open</option>
+        <option value="in-progress" ${t.status==='in-progress'?'selected':''}>In Progress</option>
+        <option value="resolved" ${t.status==='resolved'?'selected':''}>Resolved</option>
+        <option value="closed" ${t.status==='closed'?'selected':''}>Closed</option>
+      </select></div>`;
+  document.getElementById('m-actions').innerHTML=`
+    <button class="btn btn-primary" onclick="saveTicket('${id}')">💾 Save Changes</button>
+    <button class="btn btn-ghost btn-sm" style="color:#C0392B;border-color:#C0392B;" onclick="delTicket('${id}')">Delete</button>`;
+  document.getElementById('modal').style.display='flex';
+}
+
+function saveTicket(id) {
+  const t=tickets.find(x=>x.id===id); if(!t) return;
+  t.title=document.getElementById('m-title2').value.trim()||t.title;
+  t.name=document.getElementById('m-name').value.trim()||t.name;
+  t.dept=document.getElementById('m-dept').value;
+  t.category=document.getElementById('m-cat').value;
+  t.priority=document.getElementById('m-pri').value;
+  t.desc=document.getElementById('m-desc').value.trim()||t.desc;
+  t.status=document.getElementById('m-stat').value;
+  saveData(); renderTickets(); document.getElementById('modal').style.display='none'; showToast('Ticket updated ✓');
+}
+
+function delTicket(id) {
+  if(!confirm('Delete this ticket?')) return;
+  tickets=tickets.filter(x=>x.id!==id); saveData(); renderTickets();
+  document.getElementById('modal').style.display='none'; showToast('Ticket deleted');
+}
+
+function submitTicket() {
+  const name=document.getElementById('f-name').value.trim();
+  const dept=document.getElementById('f-dept').value;
+  const cat=document.getElementById('f-category').value;
+  const pri=document.getElementById('f-priority').value;
+  const title=document.getElementById('f-title').value.trim();
+  const desc=document.getElementById('f-desc').value.trim();
+  if(!name||!dept||!cat||!title||!desc){showToast('⚠️ Fill in all fields',true);return;}
+  tkCount++;
+  tickets.push({id:`TKT-${tkCount}`,name,dept,category:cat,priority:pri,title,desc,status:'open',date:new Date().toLocaleDateString()});
+  saveData(); clearForm(); updateStats(); showToast(`Ticket TKT-${tkCount} created ✓`);
+  switchTab('tickets');
+}
+
+function clearForm() {
+  ['f-name','f-dept','f-category','f-priority','f-title','f-desc'].forEach(id=>{document.getElementById(id).value='';});
+}
+
+// ── ASSETS ─────────────────────────────────────────────────────────────────
+function renderAssets() {
+  const tb=document.getElementById('asset-body');
+  if(!assets.length){tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:28px;color:#6B7A99">No assets registered yet.</td></tr>`;return;}
+  tb.innerHTML=assets.map((a,i)=>`<tr>
+    <td><strong>${a.tag}</strong></td><td>${a.type}</td><td>${a.model}</td>
+    <td>${a.user}</td><td>${a.dept}</td>
+    <td><span class="status-dot dot-${a.status==='Good'?'good':a.status==='Needs Repair'?'warn':'offline'}"></span>${a.status}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="delAsset(${i})">Remove</button></td>
+  </tr>`).join(''); updateStats();
+}
+
+function addAsset() {
+  const type=document.getElementById('a-type').value, model=document.getElementById('a-model').value.trim(),
+    serial=document.getElementById('a-serial').value.trim(), user=document.getElementById('a-user').value.trim(),
+    dept=document.getElementById('a-dept').value, status=document.getElementById('a-status').value;
+  if(!type||!model||!serial||!user||!dept){showToast('⚠️ Fill in all fields',true);return;}
+  const tag=`GC-${type.substring(0,2).toUpperCase()}-${String(assets.length+1).padStart(3,'0')}`;
+  assets.push({tag,type,model,serial,user,dept,status});
+  saveData(); updateStats(); showToast(`Asset ${tag} registered ✓`);
+  ['a-type','a-model','a-serial','a-user','a-dept'].forEach(id=>{document.getElementById(id).value='';});
+  switchTab('assets');
+}
+
+function delAsset(i) {
+  if(!confirm('Remove this asset?')) return;
+  assets.splice(i,1); saveData(); renderAssets(); showToast('Asset removed');
+}
+
+// ── BILLBOARDS ─────────────────────────────────────────────────────────────
+function renderBoards() {
+  const grid=document.getElementById('bb-grid');
+  if(!boards.length){grid.innerHTML=`<div class="empty"><div class="empty-icon">📺</div><p>No billboard sites registered yet.</p></div>`;return;}
+  grid.innerHTML=boards.map((b,i)=>`
+    <div class="bb-card ${b.status}" onclick="editBoard(${i})" style="cursor:pointer;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div>
+          <div class="bb-name">${b.name}</div>
+          <div class="bb-loc">📍 ${b.loc}</div>
+        </div>
+        <span class="bb-status bs-${b.status}">● ${b.status}</span>
+      </div>
+      <div class="bb-row"><span class="bb-key">Screen Size</span><span class="bb-val">${b.size}</span></div>
+      <div class="bb-row"><span class="bb-key">Media Player</span><span class="bb-val">${b.player}</span></div>
+      <div class="bb-row"><span class="bb-key">Connectivity</span><span class="bb-val">${b.conn}</span></div>
+      <div class="bb-row"><span class="bb-key">Last Updated</span><span class="bb-val">${b.lastUpdate}</span></div>
+      ${b.notes?`<div style="margin-top:10px;font-size:12px;color:var(--muted);background:var(--bg);padding:7px 10px;border-radius:6px;">📝 ${b.notes}</div>`:''}
+    </div>`).join('');
+  updateStats();
+}
+
+function editBoard(i) {
+  const b=boards[i];
+  const iS=`padding:8px 12px;border:1.5px solid #DDE3EC;border-radius:7px;font-size:14px;width:100%;margin-top:4px;background:#F7F8FA;color:#1A1F2E;outline:none;`;
+  document.getElementById('m-title').textContent=`Edit — ${b.name}`;
+  document.getElementById('m-body').innerHTML=`
+    <div class="modal-field"><div class="modal-label">Billboard Name</div><input id="bb-e-name" style="${iS}" value="${b.name}"/></div>
+    <div class="modal-field"><div class="modal-label">Location</div><input id="bb-e-loc" style="${iS}" value="${b.loc}"/></div>
+    <div class="modal-field"><div class="modal-label">Connectivity</div>
+      <select id="bb-e-conn" style="${iS}">
+        ${['4G LTE','Fibre','VSAT','None (Manual)'].map(c=>`<option ${b.conn===c?'selected':''}>${c}</option>`).join('')}
+      </select></div>
+    <div class="modal-field"><div class="modal-label">Status</div>
+      <select id="bb-e-stat" style="${iS}">
+        <option value="online"  ${b.status==='online'?'selected':''}>Online</option>
+        <option value="warning" ${b.status==='warning'?'selected':''}>Warning</option>
+        <option value="offline" ${b.status==='offline'?'selected':''}>Offline</option>
+      </select></div>
+    <div class="modal-field"><div class="modal-label">Notes</div>
+      <textarea id="bb-e-notes" style="${iS}resize:vertical;min-height:70px;">${b.notes||''}</textarea></div>`;
+  document.getElementById('m-actions').innerHTML=`
+    <button class="btn btn-primary" onclick="saveBoardEdit(${i})">💾 Save</button>
+    <button class="btn btn-ghost btn-sm" style="color:#C0392B;border-color:#C0392B;" onclick="delBoard(${i})">Remove</button>`;
+  document.getElementById('modal').style.display='flex';
+}
+
+function saveBoardEdit(i) {
+  boards[i].name=document.getElementById('bb-e-name').value.trim()||boards[i].name;
+  boards[i].loc=document.getElementById('bb-e-loc').value.trim()||boards[i].loc;
+  boards[i].conn=document.getElementById('bb-e-conn').value;
+  boards[i].status=document.getElementById('bb-e-stat').value;
+  boards[i].notes=document.getElementById('bb-e-notes').value.trim();
+  boards[i].lastUpdate=new Date().toLocaleDateString();
+  saveData(); renderBoards(); document.getElementById('modal').style.display='none'; showToast('Billboard updated ✓');
+}
+
+function delBoard(i){
+  if(!confirm('Remove this billboard?')) return;
+  boards.splice(i,1); saveData(); renderBoards();
+  document.getElementById('modal').style.display='none'; showToast('Billboard removed');
+}
+
+function addBillboard() {
+  const name=document.getElementById('bb-name').value.trim(), loc=document.getElementById('bb-loc').value.trim(),
+    size=document.getElementById('bb-size').value.trim(), player=document.getElementById('bb-player').value.trim(),
+    conn=document.getElementById('bb-conn').value, status=document.getElementById('bb-status').value,
+    notes=document.getElementById('bb-notes').value.trim();
+  if(!name||!loc||!size||!player){showToast('⚠️ Fill in all required fields',true);return;}
+  const id=`BB-${String(boards.length+1).padStart(3,'0')}`;
+  boards.push({id,name,loc,size,player,conn,status,notes,lastUpdate:new Date().toLocaleDateString()});
+  saveData(); updateStats(); showToast(`Billboard ${id} registered ✓`);
+  ['bb-name','bb-loc','bb-size','bb-player','bb-notes'].forEach(id=>{document.getElementById(id).value='';});
+  switchTab('billboards');
+}
+
+// ── NETWORK ────────────────────────────────────────────────────────────────
+function renderNet() {
+  const tb=document.getElementById('net-body');
+  if(!netDevs.length){tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:28px;color:#6B7A99">No network devices added yet.</td></tr>`;return;}
+  tb.innerHTML=netDevs.map((d,i)=>`<tr>
+    <td><strong>${d.name}</strong></td><td>${d.type}</td><td><code>${d.ip}</code></td>
+    <td>${d.loc}</td>
+    <td><span class="status-dot dot-${d.status==='Active'?'good':d.status==='Degraded'?'warn':'bad'}"></span>${d.status}</td>
+    <td>${d.checked}</td>
+    <td>
+      <select onchange="updateNet(${i},this.value)" style="padding:4px 8px;border:1px solid #DDE3EC;border-radius:5px;font-size:12px;">
+        <option ${d.status==='Active'?'selected':''}>Active</option>
+        <option ${d.status==='Degraded'?'selected':''}>Degraded</option>
+        <option ${d.status==='Down'?'selected':''}>Down</option>
+      </select>
+    </td>
+  </tr>`).join('');
+}
+
+function updateNet(i,val) {
+  netDevs[i].status=val; netDevs[i].checked=new Date().toLocaleDateString();
+  saveData(); renderNet(); showToast(`${netDevs[i].name} → ${val}`);
+}
+
+function addNetDevice() {
+  const name=document.getElementById('n-name').value.trim(), type=document.getElementById('n-type').value,
+    ip=document.getElementById('n-ip').value.trim(), loc=document.getElementById('n-loc').value.trim(),
+    status=document.getElementById('n-status').value;
+  if(!name||!ip||!loc){showToast('⚠️ Fill in all fields',true);return;}
+  netDevs.push({name,type,ip,loc,status,checked:new Date().toLocaleDateString()});
+  saveData(); renderNet(); showToast(`${name} added ✓`);
+  ['n-name','n-ip','n-loc'].forEach(id=>{document.getElementById(id).value='';});
+}
+
+// ── IT REPORT ──────────────────────────────────────────────────────────────
+function generateReport() {
+  const period=document.getElementById('r-period').value;
+  const author=document.getElementById('r-author').value.trim() || 'IT Support Officer';
+  const today=new Date().toLocaleDateString('en-NG',{day:'numeric',month:'long',year:'numeric'});
+  const totalTickets=tickets.length, open=tickets.filter(t=>t.status==='open').length,
+    inProg=tickets.filter(t=>t.status==='in-progress').length,
+    resolved=tickets.filter(t=>t.status==='resolved').length,
+    closed=tickets.filter(t=>t.status==='closed').length;
+  const bbOnline=boards.filter(b=>b.status==='online').length,
+    bbWarn=boards.filter(b=>b.status==='warning').length,
+    bbOff=boards.filter(b=>b.status==='offline').length;
+  const netDown=netDevs.filter(d=>d.status==='Down').length,
+    netDeg=netDevs.filter(d=>d.status==='Degraded').length;
+
+  const html=`
+  <div class="report-box" id="printable-report">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+      <div>
+        <h2>📡 GEMS Communications Limited</h2>
+        <div class="report-meta">${period} IT Status Report · Generated: ${today} · Prepared by: ${author}</div>
+      </div>
+    </div>
+
+    <h3>1. Executive Summary</h3>
+    <p>This report provides an overview of IT operations at GEMS Communications Limited for the ${period.toLowerCase()} period ending ${today}. It covers helpdesk ticket activity, LED billboard status, network infrastructure health, and asset inventory summary.</p>
+
+    <h3>2. Helpdesk Ticket Summary</h3>
+    <table class="report-table">
+      <thead><tr><th>Status</th><th>Count</th><th>% of Total</th></tr></thead>
+      <tbody>
+        <tr><td>Open</td><td>${open}</td><td>${totalTickets?Math.round(open/totalTickets*100):0}%</td></tr>
+        <tr><td>In Progress</td><td>${inProg}</td><td>${totalTickets?Math.round(inProg/totalTickets*100):0}%</td></tr>
+        <tr><td>Resolved</td><td>${resolved}</td><td>${totalTickets?Math.round(resolved/totalTickets*100):0}%</td></tr>
+        <tr><td>Closed</td><td>${closed}</td><td>${totalTickets?Math.round(closed/totalTickets*100):0}%</td></tr>
+        <tr><td><strong>Total</strong></td><td><strong>${totalTickets}</strong></td><td>100%</td></tr>
+      </tbody>
+    </table>
+    ${tickets.filter(t=>t.priority==='High'&&t.status!=='resolved'&&t.status!=='closed').length?
+      `<p style="color:#C0392B;font-weight:600;margin-top:8px;">⚠️ ${tickets.filter(t=>t.priority==='High'&&t.status!=='resolved'&&t.status!=='closed').length} high-priority ticket(s) still unresolved.</p>`:''}
+
+    <h3>3. LED Billboard Status</h3>
+    <table class="report-table">
+      <thead><tr><th>Billboard</th><th>Location</th><th>Connectivity</th><th>Status</th></tr></thead>
+      <tbody>
+        ${boards.map(b=>`<tr><td>${b.name}</td><td>${b.loc}</td><td>${b.conn}</td>
+          <td style="color:${b.status==='online'?'#1E7D47':b.status==='warning'?'#B45309':'#C0392B'};font-weight:700;">${b.status.toUpperCase()}</td></tr>`).join('')}
+      </tbody>
+    </table>
+    <p style="margin-top:8px;">Online: <strong>${bbOnline}</strong> &nbsp;|&nbsp; Warning: <strong>${bbWarn}</strong> &nbsp;|&nbsp; Offline: <strong>${bbOff}</strong></p>
+
+    <h3>4. Network Infrastructure</h3>
+    <table class="report-table">
+      <thead><tr><th>Device</th><th>Type</th><th>IP</th><th>Location</th><th>Status</th></tr></thead>
+      <tbody>
+        ${netDevs.map(d=>`<tr><td>${d.name}</td><td>${d.type}</td><td>${d.ip}</td><td>${d.loc}</td>
+          <td style="color:${d.status==='Active'?'#1E7D47':d.status==='Degraded'?'#B45309':'#C0392B'};font-weight:700;">${d.status}</td></tr>`).join('')}
+      </tbody>
+    </table>
+    ${netDown||netDeg?`<p style="color:#B45309;font-weight:600;margin-top:8px;">⚠️ ${netDown} device(s) down, ${netDeg} degraded. Immediate attention required.</p>`:'<p style="color:#1E7D47;margin-top:8px;">✅ All network devices operating normally.</p>'}
+
+    <h3>5. IT Asset Summary</h3>
+    <p>Total registered assets: <strong>${assets.length}</strong> &nbsp;|&nbsp;
+       Good condition: <strong>${assets.filter(a=>a.status==='Good').length}</strong> &nbsp;|&nbsp;
+       Needs repair: <strong>${assets.filter(a=>a.status==='Needs Repair').length}</strong> &nbsp;|&nbsp;
+       Retired: <strong>${assets.filter(a=>a.status==='Retired').length}</strong></p>
+
+    <h3>6. Recommendations</h3>
+    <p>• ${bbOff>0?`Dispatch field technician to ${boards.filter(b=>b.status==='offline').map(b=>b.name).join(', ')} immediately to restore display.`:'All billboards are operational — maintain current maintenance schedule.'}</p>
+    <p>• ${open>3?`${open} open tickets require prioritisation. Consider escalating aged tickets to vendors.`:'Helpdesk queue is well-managed.'}</p>
+    <p>• ${assets.filter(a=>a.status==='Needs Repair').length>0?`${assets.filter(a=>a.status==='Needs Repair').length} asset(s) marked for repair — coordinate with vendors for replacement or servicing.`:'All assets in good condition.'}</p>
+    <p>• Continue enforcing Microsoft 365 security policies, MFA, and regular data backups as per IT security standards.</p>
+
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);">
+      Prepared by: <strong>${author}</strong> &nbsp;|&nbsp; GEMS Communications Ltd &nbsp;|&nbsp; ${today}
+    </div>
+  </div>`;
+  document.getElementById('report-output').innerHTML=html;
+  showToast('Report generated ✓');
+}
+
+function printReport() {
+  const el=document.getElementById('printable-report');
+  if(!el){showToast('⚠️ Generate a report first',true);return;}
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><title>GEMS IT Report</title>
+    <style>body{font-family:Segoe UI,sans-serif;padding:32px;font-size:13px;color:#1A1F2E;}
+    h2{color:#0A2540;font-size:20px;}h3{color:#0A2540;font-size:14px;border-bottom:1px solid #ddd;padding-bottom:4px;margin:16px 0 8px;}
+    table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;}
+    th{background:#0A2540;color:white;padding:7px 11px;text-align:left;}
+    td{padding:7px 11px;border-bottom:1px solid #ddd;}</style>
+  </head><body>${el.innerHTML}</body></html>`);
+  w.document.close(); w.print();
+}
+
+// ── MODAL / HELPERS ────────────────────────────────────────────────────────
+function closeModal(e){if(e.target.id==='modal')document.getElementById('modal').style.display='none';}
+
+function showToast(msg,warn=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.background=warn?'#B45309':'var(--brand)';
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+renderTickets(); updateStats();
+</script>
+</body>
+</html>
